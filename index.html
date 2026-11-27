@@ -81,23 +81,9 @@ let DATA = {};
 function refreshData(){ DATA = {...cats}; DATA["عشوائي"] = { words: Object.values(cats).flatMap(c=>c.words), hints: Object.values(cats).flatMap(c=>c.hints), img:null }; }
 refreshData();
 
-let dbCap=null, catsDocRef=null, canEdit=true;
+let dbCap=null, catsDocRef=null, canEdit=false;
 (async()=>{
-  try{
-    const u = await claude.use('user');
-    if(u){ canEdit = await u.canEdit(); }
-    dbCap = await claude.use('db');
-    if(dbCap){
-      catsDocRef = dbCap.doc('categories/all');
-      catsDocRef.onSnapshot(snap=>{
-        if(snap.exists){
-          const d = snap.data();
-          if(d && d.cats){ cats = d.cats; refreshData(); localStorage.setItem('bs_categories_cache', JSON.stringify(cats)); }
-        }
-        render();
-      }, ()=>{ render(); });
-    }
-  }catch(e){}
+  canEdit = true;
   render();
 })();
 
