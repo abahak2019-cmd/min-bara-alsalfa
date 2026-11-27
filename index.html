@@ -76,18 +76,125 @@ let state={catCount:1,cats:[],word:'',impostorIdx:-1,revealIdx:0,hintEnabled:tru
 const app=document.getElementById('app');
 function render(){app.innerHTML='';screens[state.screen||'names']()}
 function saveCats(){refreshData();try{localStorage.setItem('bs_categories_cache',JSON.stringify(cats))}catch(e){alert('مساحة التخزين ممتلئة. جرّب صورة أصغر أو احذف بعض الصور.')}}
-function exportGame(){
- if(!canEdit)return;
- try{
-  let html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
-  const a='/*__BASE_CATS_START__*/',b='/*__BASE_CATS_END__*/',s=html.indexOf(a),e=html.indexOf(b);
-  if(s===-1||e===-1||e<=s){alert('تعذر تجهيز الملف. تأكد من نسخة اللعبة.');return}
-  html=html.slice(0,s+a.length)+'\nconst BASE_CATS = '+JSON.stringify(cats,null,2)+';\n'+html.slice(e);
-  html=html.replace('let canEdit=true;','let canEdit=false;');
-  const blob=new Blob([html],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');
-  link.href=url;link.download='index.html';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-  alert('تم تصدير نسخة النشر! ارفع ملف index.html الجديد إلى GitHub.')
- }catch(error){console.error(error);alert('حدث خطأ أثناء التصدير.')}
+async function exportGame(){
+  if(!canEdit)return;
+
+  try{
+    // نأخذ نسخة مستقلة من التصنيفات الحالية
+    const exportCats=JSON.parse(JSON.stringify(cats));
+
+    // نفحص الصور
+    let imageCount=0;
+    let missingImages=[];
+
+    for(const [name,cat] of Object.entries(exportCats)){
+      if(cat.img){
+        if(typeof cat.img==='string' &&
+           (cat.img.startsWith('data:image/') ||
+            cat.img.startsWith('https://') ||
+            cat.img.startsWith('http://'))){
+          imageCount++;
+        }else{
+          missingImages.push(name);
+        }
+      }
+    }
+
+    if(missingImages.length){
+      alert(
+        'تعذر التصدير: توجد صور غير صالحة في التصنيفات التالية:\n'+
+        missingImages.join('، ')
+      );
+      return;
+    }
+
+    // تجهيز بيانات التصنيفات
+    const catsJSON=JSON.stringify(exportCats,null,2);
+
+    // التأكد من أن الصور موجودة فعلًا داخل البيانات
+    const embeddedImages=(catsJSON.match(/data:image\//g)||[]).length;
+
+    if(imageCount>0 && embeddedImages===0){
+      alert('لم يتم العثور على بيانات الصور داخل التصنيفات. لم يتم تصدير الملف.');
+      return;
+    }
+
+    // إنشاء نسخة النشر
+    let html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+
+    const a='/*__BASE_CATS_START__*/';
+    const b='/*__BASE_CATS_END__*/';
+    const s=html.indexOf(a);
+    const e=html.indexOf(b);
+
+    if(s===-1 || e===-1 || e<=s){
+      alert('تعذر تجهيز الملف. تأكد من نسخة اللعبة.');
+      return;
+    }
+
+    html=
+      html.slice(0,s+a.length)+
+      '\nconst BASE_CATS = '+catsJSON+';\n'+
+      html.slice(e);
+
+    // نسخة اللاعبين لا تسمح بالتعديل
+    html=html.replace('let canEdit=true;','let canEdit=false;');
+
+    // أسماء اللاعبين لا تُحفظ في نسخة النشر
+    html=html.replace(
+      "let names=JSON.parse(localStorage.getItem('bs_names')||'[]');",
+      "let names=[];"
+    );
+
+    html=html.replace(
+      "localStorage.setItem('bs_names',JSON.stringify(names));",
+      ""
+    );
+
+    // إضافة تعليمات منع التخزين المؤقت للصفحة
+    html=html.replace(
+      '<head>',
+      `<head>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">`
+    );
+
+    // فحص أخير قبل التنزيل
+    if(imageCount>0 && !html.includes('data:image/')){
+      alert('فشل تضمين الصور في ملف النشر.');
+      return;
+    }
+
+    const blob=new Blob(
+      [html],
+      {type:'text/html;charset=utf-8'}
+    );
+
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement('a');
+
+    link.href=url;
+    link.download='index.html';
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+
+    alert(
+      'تم تصدير نسخة النشر بنجاح!\n'+
+      'عدد التصنيفات: '+Object.keys(exportCats).length+
+      '\nعدد التصنيفات التي تحتوي صورًا: '+imageCount+
+      '\nعدد بيانات الصور المضمّنة: '+embeddedImages+
+      '\n\nارفع الملف الجديد إلى GitHub.'
+    );
+
+  }catch(error){
+    console.error(error);
+    alert('حدث خطأ أثناء التصدير: '+error.message);
+  }
 }
 function chooseImpostor(){const weights=names.map((n,i)=>i!==lastImpostorIdx?1:Math.max(.1,1-.1*(impostorStreak-1)));let r=Math.random()*weights.reduce((s,w)=>s+w,0);for(let i=0;i<weights.length;i++){r-=weights[i];if(r<0)return i}return weights.length-1}
 function updateImpostorStreak(i){if(i===lastImpostorIdx)impostorStreak++;else{lastImpostorIdx=i;impostorStreak=1}}
