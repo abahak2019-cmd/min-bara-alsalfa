@@ -270,8 +270,52 @@ vote(){const voter=names[state.voteIdx];app.innerHTML=`<h2>${voter}، صوّت �
 result(){const imp=names[state.impostorIdx],tally={};Object.values(state.votes).forEach(v=>tally[v]=(tally[v]||0)+1);const mostVoted=Object.keys(tally).sort((a,b)=>tally[b]-tally[a])[0],caught=mostVoted!=null&&Number(mostVoted)===state.impostorIdx;app.innerHTML=`<h2 style="text-align:center">برا السالفة كان: <span style="color:var(--red)">${imp}</span></h2><p style="text-align:center">${caught?'✅ انكشف!':'❌ ما انكشف'}</p><button onclick="goGuess()">يدور ${imp} على الكلمة ←</button>`},
 guess(){const correct=state.word,decoys=DECOYS[correct]||shuffle(DATA[state.guessCat].words.filter(w=>w!==correct)).slice(0,4),opts=shuffle([correct,...decoys]);state.guessOptions=opts;app.innerHTML=`<h2>${names[state.impostorIdx]}، اختر الكلمة الصح</h2><div id="guessOpts">${opts.map((o,i)=>`<span class="chip" data-index="${i}" onclick="finishGuess(${i})">${o}</span>`).join('')}</div>`},
 feedback(){app.innerHTML=`<h2 style="text-align:center">${state.guessedRight?'✅ إجابة صحيحة':'❌ إجابة خاطئة'}</h2><p style="text-align:center">الكلمة الصح كانت: <b>${state.word}</b></p><button onclick="goDone()">شوف النتيجة النهائية</button>`},
-done(){let rows='';names.forEach((n,i)=>{let pts=0;if(i!==state.impostorIdx&&state.votes[i]===state.impostorIdx)pts++;rows+=`<div class="score"><span>${n}</span><span>${pts}</span></div>`});const statsRows=names.map((n,i)=>`<div class="stats-row"><span>${n}</span><span class="stats-count">${sessionStats.impostorCounts[i]||0} مرة</span></div>`).join('');app.innerHTML=`<h2>النتيجة النهائية</h2>${rows}<div class="stats-panel"><div class="stats-title">📊 إحصائيات الجلسة</div><div class="stats-total">${sessionStats.rounds}</div><p class="muted" style="text-align:center;margin-top:0">إجمالي الجولات المكتملة</p>${statsRows}<p class="stats-note">الإحصائيات تستمر عند تغيير التصنيفات، وتُصفّر عند الرجوع إلى قائمة الأسماء.</p></div><button onclick="startRound()">جولة جديدة (نفس التصنيفات)</button><button class="secondary" onclick="changeCats()">غيّر التصنيفات</button><button class="secondary" onclick="goNames()">إنهاء الجلسة والرجوع للأسماء</button>`}
-};
+done(){
+  const ranking=names.map((n,i)=>({
+    name:n,
+    score:sessionStats.scores[i]||0,
+    originalIndex:i
+  })).sort((a,b)=>b.score-a.score||a.originalIndex-b.originalIndex);
+
+  const rows=ranking.map((p,i)=>{
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
+
+    return `
+      <div class="score">
+        <span>${medal} ${p.name}</span>
+        <strong>${p.score} نقطة</strong>
+      </div>
+    `;
+  }).join('');
+
+  const statsRows=names.map((n,i)=>`
+    <div class="stats-row">
+      <span>${n}</span>
+      <span class="stats-count">${sessionStats.impostorCounts[i]||0} مرة</span>
+    </div>
+  `).join('');
+
+  app.innerHTML=`
+    <h2>🏆 ترتيب اللاعبين</h2>
+    ${rows}
+
+    <div class="stats-panel">
+      <div class="stats-title">📊 إحصائيات الجلسة</div>
+      <div class="stats-total">${sessionStats.rounds}</div>
+      <p class="muted" style="text-align:center;margin-top:0">
+        إجمالي الجولات المكتملة
+      </p>
+      ${statsRows}
+      <p class="stats-note">
+        النقاط تراكمية طوال الجلسة، وتُصفّر عند إنهاء الجلسة والرجوع للأسماء.
+      </p>
+    </div>
+
+    <button onclick="startRound()">جولة جديدة (نفس التصنيفات)</button>
+    <button class="secondary" onclick="changeCats()">غيّر التصنيفات</button>
+    <button class="secondary" onclick="goNames()">إنهاء الجلسة والرجوع للأسماء</button>
+  `;
+}
 function addName(){const input=document.getElementById('nm'),value=input.value.trim();if(!value)return;names.push(value);localStorage.setItem('bs_names',JSON.stringify(names));resetSessionTracking();state.screen='names';render()}
 function delName(i){names.splice(i,1);localStorage.setItem('bs_names',JSON.stringify(names));resetSessionTracking();render()}
 function goNames(){resetSessionTracking();state.screen='names';state.cats=[];state.roundRecorded=false;render()}
