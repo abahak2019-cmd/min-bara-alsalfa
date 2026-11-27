@@ -92,15 +92,9 @@ button.danger{background:var(--red)}
   padding:8px;text-align:center;cursor:pointer
 }
 .catcard.sel{border-color:var(--accent);background:#2a2440}
-
-/* صور التصنيفات: مستطيلة بالطول */
 .catcard img{
-  width:100%;
-  aspect-ratio:3/4;
-  height:auto;
-  object-fit:cover;
-  border-radius:8px;
-  margin-bottom:6px;
+  width:100%;aspect-ratio:3/4;height:auto;
+  object-fit:cover;border-radius:8px;margin-bottom:6px;
 }
 .catcard .ic{
   font-size:30px;height:60px;display:flex;
@@ -122,9 +116,7 @@ button.danger{background:var(--red)}
   background:#0f1016;border:1px solid #333;
   border-radius:12px;padding:14px;margin-top:20px
 }
-.stats-title{
-  font-size:17px;font-weight:bold;margin-bottom:10px
-}
+.stats-title{font-size:17px;font-weight:bold;margin-bottom:10px}
 .stats-total{
   font-size:24px;font-weight:bold;color:var(--accent);
   text-align:center;padding:10px
@@ -147,6 +139,7 @@ button.danger{background:var(--red)}
 <div id="app" class="card"></div>
 
 <script>
+/*__BASE_CATS_START__*/
 const BASE_CATS = {
  "أكل":{
   words:["بيتزا","كبسة","شاورما","معجنات","تمر","قهوة عربية","مندي","فلافل"],
@@ -164,6 +157,7 @@ const BASE_CATS = {
   img:null
  }
 };
+/*__BASE_CATS_END__*/
 
 const DECOYS = {
  "بيتزا":["باستا","برغر","لازانيا","كاليزوني"],
@@ -229,25 +223,15 @@ let canEdit=true;
 
 let names=JSON.parse(localStorage.getItem('bs_names')||'[]');
 
-/* إحصائيات الجلسة */
-let sessionStats={
-  rounds:0,
-  impostorCounts:[]
-};
-
-/* تتبع تكرار الإمبوستر */
+let sessionStats={rounds:0,impostorCounts:[]};
 let lastImpostorIdx=-1;
 let impostorStreak=0;
 
 function resetSessionTracking(){
-  sessionStats={
-    rounds:0,
-    impostorCounts:Array(names.length).fill(0)
-  };
+  sessionStats={rounds:0,impostorCounts:Array(names.length).fill(0)};
   lastImpostorIdx=-1;
   impostorStreak=0;
 }
-
 resetSessionTracking();
 
 let state={
@@ -272,27 +256,68 @@ function saveCats(){
   }
 }
 
+/* تصدير نسخة نشر تتضمن كل التصنيفات والصور */
+function exportGame(){
+  if(!canEdit)return;
+
+  try{
+    let html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+
+    const startMarker='/*__BASE_CATS_START__*/';
+    const endMarker='/*__BASE_CATS_END__*/';
+
+    const start=html.indexOf(startMarker);
+    const end=html.indexOf(endMarker);
+
+    if(start===-1||end===-1||end<=start){
+      alert('تعذر تجهيز الملف. تأكد من نسخة اللعبة.');
+      return;
+    }
+
+    const newBase='const BASE_CATS = '+JSON.stringify(cats,null,2)+';\n';
+
+    html=html.slice(0,start+startMarker.length)
+      +'\n'+newBase
+      +html.slice(end);
+
+    /* قفل الاستوديو والتصدير في نسخة اللاعبين */
+    html=html.replace('let canEdit=true;','let canEdit=false;');
+
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement('a');
+
+    link.href=url;
+    link.download='index.html';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+
+    alert('تم تصدير نسخة النشر! ارفع ملف index.html الجديد إلى GitHub.');
+  }catch(error){
+    console.error(error);
+    alert('حدث خطأ أثناء التصدير.');
+  }
+}
+
 /* اختيار الإمبوستر بوزن عادل */
 function chooseImpostor(){
   const weights=names.map((name,index)=>{
     if(index!==lastImpostorIdx)return 1;
-
     const reduction=0.1*(impostorStreak-1);
     return Math.max(0.1,1-reduction);
   });
-
   const total=weights.reduce((sum,w)=>sum+w,0);
   let random=Math.random()*total;
-
   for(let i=0;i<weights.length;i++){
     random-=weights[i];
     if(random<0)return i;
   }
-
   return weights.length-1;
 }
 
-/* تسجيل الإمبوستر المختار وتحديث سلسلة التكرار */
 function updateImpostorStreak(newImpostorIdx){
   if(newImpostorIdx===lastImpostorIdx){
     impostorStreak++;
@@ -302,20 +327,15 @@ function updateImpostorStreak(newImpostorIdx){
   }
 }
 
-/* تسجيل الجولة مرة واحدة فقط */
 function recordRoundStats(){
   if(state.roundRecorded)return;
-
   sessionStats.rounds++;
-
   if(sessionStats.impostorCounts.length!==names.length){
     sessionStats.impostorCounts=Array(names.length).fill(0);
   }
-
   if(state.impostorIdx>=0&&state.impostorIdx<names.length){
     sessionStats.impostorCounts[state.impostorIdx]++;
   }
-
   state.roundRecorded=true;
 }
 
@@ -331,42 +351,37 @@ names(){
     ${canEdit?'<button class="secondary" onclick="goStudio()">⚙️ الاستوديو (إدارة التصنيفات)</button>':''}
     <p class="muted">لازم 3 لاعبين على الأقل</p>
   `;
-
   const list=document.getElementById('list');
   names.forEach((n,i)=>{
     const d=document.createElement('div');
     d.className='pname';
-
     const span=document.createElement('span');
     span.style.flex='1';
     span.textContent=n;
-
     const btn=document.createElement('button');
     btn.textContent='حذف';
     btn.onclick=()=>delName(i);
-
     d.append(span,btn);
     list.appendChild(d);
   });
 },
 
 studio(){
+  if(!canEdit){goNames();return;}
   const keys=Object.keys(cats);
-
   app.innerHTML=`
     <h2>الاستوديو — تصنيفاتك (${keys.length})</h2>
     <div id="catlist"></div>
     <button onclick="openCatEdit(null)">➕ تصنيف جديد</button>
+    <button onclick="exportGame()">📦 تصدير نسخة النشر</button>
+    <p class="muted">ينزّل ملف اللعبة بكل التصنيفات والكلمات والصور. النسخة المصدّرة تكون مقفلة عن التعديل.</p>
     <button class="secondary" onclick="goNames()">رجوع</button>
   `;
-
   const list=document.getElementById('catlist');
-
   keys.forEach(k=>{
     const c=cats[k];
     const d=document.createElement('div');
     d.className='catrow';
-
     if(c.img){
       const img=document.createElement('img');
       img.src=c.img;
@@ -377,21 +392,17 @@ studio(){
       ic.textContent='🗂️';
       d.appendChild(ic);
     }
-
     const label=document.createElement('span');
     label.style.flex='1';
     label.textContent=`${k} (${c.words.length} كلمة)`;
     d.appendChild(label);
-
     const edit=document.createElement('button');
     edit.textContent='تعديل';
     edit.onclick=()=>openCatEdit(k);
-
     const del=document.createElement('button');
     del.textContent='حذف';
     del.style.background='var(--red)';
     del.onclick=()=>deleteCategory(k);
-
     d.append(edit,del);
     list.appendChild(d);
   });
@@ -401,7 +412,6 @@ catedit(){
   const editing=state.editingCat;
   const c=editing?cats[editing]:{words:[],hints:[],img:null};
   const previewUrl=state.tempImgUrl||(c.img||null);
-
   app.innerHTML=`
     <h2>${editing?'تعديل التصنيف':'تصنيف جديد'}</h2>
     <input type="text" id="catName" placeholder="اسم التصنيف">
@@ -411,37 +421,28 @@ catedit(){
 برغر
 شاورما
 كبسة"></textarea>
-
     <label class="muted">التلميحات (اختياري، كل تلميح في سطر)</label>
     <textarea id="catHints" placeholder="اكتب التلميحات هنا..."></textarea>
-
     <label class="muted">صورة التصنيف (اختياري)</label>
     <div id="imgPreview"></div>
     <input type="file" id="catImage" accept="image/*">
     <button onclick="saveCategory()">حفظ</button>
     <button class="secondary" onclick="state.tempImg=null;state.tempImgUrl=null;goStudio()">إلغاء</button>
   `;
-
   document.getElementById('catName').value=editing||'';
   document.getElementById('catWords').value=(c.words||[]).join('\n');
   document.getElementById('catHints').value=(c.hints||[]).filter(h=>!DEFAULT_HINTS.includes(h)).join('\n');
-
   if(previewUrl){
-    document.getElementById('imgPreview').innerHTML=
-      `<img class="imgprev" src="${previewUrl}">`;
+    document.getElementById('imgPreview').innerHTML=`<img class="imgprev" src="${previewUrl}">`;
   }
-
   document.getElementById('catImage').onchange=handleImg;
 },
 
 catcount(){
   const opts=[1,2,3,4,5,6,7,8,9,10];
-
   app.innerHTML=`
     <h2>كم تصنيف تبغى؟</h2>
-    <div>
-      ${opts.map(n=>`<span class="chip ${state.catCount===n?'sel':''}" onclick="setCatCount(${n})">${n}</span>`).join('')}
-    </div>
+    <div>${opts.map(n=>`<span class="chip ${state.catCount===n?'sel':''}" onclick="setCatCount(${n})">${n}</span>`).join('')}</div>
     <div class="toggle">
       <span>هل تريد تلميح للامبوستر؟</span>
       <div class="sw ${state.hintEnabled?'on':''}" onclick="toggleHint()"><span></span></div>
@@ -453,7 +454,6 @@ catcount(){
 
 pickcats(){
   const all=Object.keys(DATA);
-
   app.innerHTML=`
     <h2>اختر ${state.catCount} تصنيف (${state.cats.length}/${state.catCount})</h2>
     <div class="catgrid">
@@ -483,7 +483,6 @@ handoff(){
 
 reveal(){
   const isImp=state.revealIdx===state.impostorIdx;
-
   app.innerHTML=`
     <div class="role-box ${isImp?'role-out':'role-in'}">
       ${isImp?'أنت برا السالفة':'أنت داخل السالفة'}
@@ -509,7 +508,6 @@ startvote(){
 
 vote(){
   const voter=names[state.voteIdx];
-
   app.innerHTML=`
     <h2>${voter}، صوّت على مين؟</h2>
     <div>
@@ -524,14 +522,9 @@ vote(){
 result(){
   const imp=names[state.impostorIdx];
   const tally={};
-
-  Object.values(state.votes).forEach(v=>{
-    tally[v]=(tally[v]||0)+1;
-  });
-
+  Object.values(state.votes).forEach(v=>{tally[v]=(tally[v]||0)+1;});
   const mostVoted=Object.keys(tally).sort((a,b)=>tally[b]-tally[a])[0];
   const caught=mostVoted!=null&&Number(mostVoted)===state.impostorIdx;
-
   app.innerHTML=`
     <h2 style="text-align:center">برا السالفة كان:
       <span style="color:var(--red)">${imp}</span>
@@ -543,19 +536,14 @@ result(){
 
 guess(){
   const correct=state.word;
-  const decoys=DECOYS[correct]||
-    shuffle(DATA[state.guessCat].words.filter(w=>w!==correct)).slice(0,4);
+  const decoys=DECOYS[correct]||shuffle(DATA[state.guessCat].words.filter(w=>w!==correct)).slice(0,4);
   const opts=shuffle([correct,...decoys]);
-
   app.innerHTML=`
     <h2>${names[state.impostorIdx]}، اختر الكلمة الصح</h2>
     <div id="guessOpts">
-      ${opts.map((o,i)=>`
-        <span class="chip" data-index="${i}" onclick="finishGuess(${i})">${o}</span>
-      `).join('')}
+      ${opts.map((o,i)=>`<span class="chip" data-index="${i}" onclick="finishGuess(${i})">${o}</span>`).join('')}
     </div>
   `;
-
   state.guessOptions=opts;
 },
 
@@ -568,35 +556,18 @@ feedback(){
 },
 
 done(){
-  const imp=names[state.impostorIdx];
   const tally={};
-
-  Object.values(state.votes).forEach(v=>{
-    tally[v]=(tally[v]||0)+1;
-  });
-
+  Object.values(state.votes).forEach(v=>{tally[v]=(tally[v]||0)+1;});
   let rows='';
-
   names.forEach((n,i)=>{
     let pts=0;
-    if(i!==state.impostorIdx&&state.votes[i]===state.impostorIdx) pts+=1;
+    if(i!==state.impostorIdx&&state.votes[i]===state.impostorIdx)pts+=1;
     rows+=`<div class="score"><span>${n}</span><span>${pts}</span></div>`;
   });
-
-  const impPts=(state.guessedRight?2:0)+(tally[state.impostorIdx]?0:1);
-
-  let statsRows='';
-
-  names.forEach((n,i)=>{
+  const statsRows=names.map((n,i)=>{
     const count=sessionStats.impostorCounts[i]||0;
-    statsRows+=`
-      <div class="stats-row">
-        <span>${n}</span>
-        <span class="stats-count">${count} مرة</span>
-      </div>
-    `;
-  });
-
+    return `<div class="stats-row"><span>${n}</span><span class="stats-count">${count} مرة</span></div>`;
+  }).join('');
   app.innerHTML=`
     <h2>النتيجة النهائية</h2>
     ${rows}
@@ -618,9 +589,7 @@ done(){
 function addName(){
   const input=document.getElementById('nm');
   const value=input.value.trim();
-
   if(!value)return;
-
   names.push(value);
   localStorage.setItem('bs_names',JSON.stringify(names));
   resetSessionTracking();
@@ -666,24 +635,19 @@ function openCatEdit(key){
 function handleImg(ev){
   const file=ev.target.files[0];
   if(!file)return;
-
   if(!file.type.startsWith('image/')){
     alert('اختر ملف صورة');
     return;
   }
-
   if(file.size>2*1024*1024){
     alert('حجم الصورة كبير. اختر صورة أقل من 2 ميغابايت.');
     ev.target.value='';
     return;
   }
-
   const reader=new FileReader();
-
   reader.onload=()=>{
     state.tempImg=reader.result;
     state.tempImgUrl=reader.result;
-
     const preview=document.getElementById('imgPreview');
     preview.innerHTML='';
     const img=document.createElement('img');
@@ -691,58 +655,36 @@ function handleImg(ev){
     img.src=reader.result;
     preview.appendChild(img);
   };
-
   reader.onerror=()=>alert('تعذر قراءة الصورة');
   reader.readAsDataURL(file);
 }
 
 function saveCategory(){
   if(!canEdit)return;
-
   const name=document.getElementById('catName').value.trim();
-
   const words=document.getElementById('catWords').value
-    .split(/\r?\n/)
-    .map(w=>w.trim())
-    .filter(Boolean);
-
+    .split(/\r?\n/).map(w=>w.trim()).filter(Boolean);
   let hints=document.getElementById('catHints').value
-    .split(/\r?\n/)
-    .map(h=>h.trim())
-    .filter(Boolean);
-
+    .split(/\r?\n/).map(h=>h.trim()).filter(Boolean);
   if(!name||words.length<4){
     alert('لازم اسم و4 كلمات على الأقل، وكل كلمة في سطر مستقل');
     return;
   }
-
   const oldKey=state.editingCat;
-
   if(hints.length===0)hints=[...DEFAULT_HINTS];
-
   const oldImage=oldKey&&cats[oldKey]?cats[oldKey].img:null;
-  const img=state.tempImg!==undefined&&state.tempImg!==null
-    ?state.tempImg
-    :oldImage;
-
-  if(oldKey&&oldKey!==name){
-    delete cats[oldKey];
-  }
-
+  const img=state.tempImg!==undefined&&state.tempImg!==null?state.tempImg:oldImage;
+  if(oldKey&&oldKey!==name)delete cats[oldKey];
   cats[name]={words,hints,img};
-
   saveCats();
-
   state.tempImg=null;
   state.tempImgUrl=null;
   state.editingCat=null;
-
   goStudio();
 }
 
 function deleteCategory(key){
   if(!canEdit)return;
-
   if(confirm('تحذف تصنيف "'+key+'"؟')){
     delete cats[key];
     saveCats();
@@ -769,51 +711,37 @@ function goPickCats(){
 
 function toggleCat(c){
   const i=state.cats.indexOf(c);
-
-  if(i>-1){
-    state.cats.splice(i,1);
-  }else if(state.cats.length<state.catCount){
-    state.cats.push(c);
-  }
-
+  if(i>-1)state.cats.splice(i,1);
+  else if(state.cats.length<state.catCount)state.cats.push(c);
   render();
 }
 
 function shuffle(a){
   a=[...a];
-
   for(let i=a.length-1;i>0;i--){
     const j=Math.floor(Math.random()*(i+1));
     [a[i],a[j]]=[a[j],a[i]];
   }
-
   return a;
 }
 
 function startRound(){
   if(!names.length||!state.cats.length)return;
-
   const cat=state.cats[Math.floor(Math.random()*state.cats.length)];
-
   if(!DATA[cat]||!DATA[cat].words.length){
     alert('هذا التصنيف لا يحتوي على كلمات');
     return;
   }
-
   state.guessCat=cat;
   state.word=DATA[cat].words[Math.floor(Math.random()*DATA[cat].words.length)];
-
-  /* اختيار الإمبوستر حسب الأوزان */
   state.impostorIdx=chooseImpostor();
   updateImpostorStreak(state.impostorIdx);
-
   state.revealIdx=0;
   state.votes={};
   state.voteIdx=0;
   state.guessedRight=false;
   state.tempVote=null;
   state.roundRecorded=false;
-
   state.screen='handoff';
   render();
 }
@@ -837,14 +765,12 @@ function showHint(){
 
 function nextReveal(){
   state.revealIdx++;
-
   if(state.revealIdx>=names.length){
     state.starter=Math.floor(Math.random()*names.length);
     state.screen='startvote';
   }else{
     state.screen='handoff';
   }
-
   render();
 }
 
@@ -863,15 +789,10 @@ function pickVote(i){
 
 function confirmVote(){
   if(state.tempVote==null)return;
-
   state.votes[state.voteIdx]=state.tempVote;
   state.voteIdx++;
   state.tempVote=null;
-
-  if(state.voteIdx>=names.length){
-    state.screen='result';
-  }
-
+  if(state.voteIdx>=names.length)state.screen='result';
   render();
 }
 
@@ -883,19 +804,11 @@ function goGuess(){
 function finishGuess(index){
   const chosen=state.guessOptions[index];
   state.guessedRight=chosen===state.word;
-
   document.querySelectorAll('#guessOpts .chip').forEach((chip,i)=>{
-    if(state.guessOptions[i]===state.word){
-      chip.classList.add('correct');
-    }else if(i===index){
-      chip.classList.add('wrong');
-    }
+    if(state.guessOptions[i]===state.word)chip.classList.add('correct');
+    else if(i===index)chip.classList.add('wrong');
   });
-
-  document.querySelectorAll('#guessOpts .chip').forEach(chip=>{
-    chip.onclick=null;
-  });
-
+  document.querySelectorAll('#guessOpts .chip').forEach(chip=>{chip.onclick=null;});
   setTimeout(()=>{
     state.screen='feedback';
     render();
