@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>مين برا السالفة</title>
 <style>
+  .copyright{
+  position:fixed;
+  bottom:10px;
+  left:0;
+  width:100%;
+  text-align:center;
+  font-size:10px;
+  color:rgba(255,255,255,.22);
+  letter-spacing:.5px;
+  pointer-events:none;
+  z-index:1;
+}
 :root{--bg:#121318;--card:#1d1f29;--txt:#f2f2f5;--muted:#8d8fa0;--accent:#6c5ce7;--green:#2ecc71;--red:#e74c3c;color-scheme:dark}
 *{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -344,5 +356,10 @@ function finishGuess(index){const chosen=state.guessOptions[index];state.guessed
 function goDone(){recordRoundStats();state.screen='done';render()}
 render();
 </script>
+<div class="copyright">
+  © 2026 abahak — All Rights Reserved.
+</div>
+
 </body>
 </html>
+
