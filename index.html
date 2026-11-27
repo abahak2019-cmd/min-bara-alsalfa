@@ -60,11 +60,21 @@ const DEFAULT_HINTS=["فكر بشكل عام بالتصنيف قبل ما تجا
 const DECOYS={"بيتزا":["باستا","برغر","لازانيا","كاليزوني"],"كبسة":["مندي","مجبوس","برياني","مظبي"],"شاورما":["فلافل","كبدة","شيش طاووق","دونر"],"معجنات":["سمبوسة","فطاير","كرواسان","بقلاوة"],"تمر":["زبيب","مشمش مجفف","بلح","قمر الدين"],"قهوة عربية":["شاي","هيل","زعفران","قهوة تركية"],"مندي":["كبسة","مظبي","مجبوس","برياني"],"فلافل":["حمص","شاورما","كبة","سمبوسة"]};
 
 let canEdit=true;
+
 function loadCategories(){
-  if(!canEdit)return JSON.parse(JSON.stringify(BASE_CATS));
-  try{const saved=JSON.parse(localStorage.getItem('bs_categories_cache')||'null');return saved&&typeof saved==='object'?saved:JSON.parse(JSON.stringify(BASE_CATS))}
-  catch(e){return JSON.parse(JSON.stringify(BASE_CATS))}
+  const base=JSON.parse(JSON.stringify(BASE_CATS));
+  if(!canEdit)return base;
+  try{
+    const saved=JSON.parse(localStorage.getItem('bs_categories_cache')||'null');
+    if(saved && typeof saved==='object' && !Array.isArray(saved)){
+      return {...base,...saved};
+    }
+    return base;
+  }catch(e){
+    return base;
+  }
 }
+
 let cats=loadCategories(),DATA={};
 function refreshData(){DATA={...cats};DATA["عشوائي"]={words:Object.values(cats).flatMap(c=>c.words||[]),hints:Object.values(cats).flatMap(c=>c.hints||[]),img:null}}
 refreshData();
