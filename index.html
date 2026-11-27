@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -5,285 +6,778 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>مين برا السالفة</title>
 <style>
-:root{--bg:#121318;--card:#1d1f29;--txt:#f2f2f5;--muted:#8d8fa0;--accent:#6c5ce7;--green:#2ecc71;--red:#e74c3c;
-color-scheme:dark;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+:root{
+  --bg:#121318;--card:#1d1f29;--txt:#f2f2f5;
+  --muted:#8d8fa0;--accent:#6c5ce7;
+  --green:#2ecc71;--red:#e74c3c;
+  color-scheme:dark;
+}
 *{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--txt);font-family:Tahoma,Arial,sans-serif;min-height:100%;display:flex;flex-direction:column;align-items:center;padding:16px}
-.card{background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:420px;margin-top:16px;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+body{
+  margin:0;background:var(--bg);color:var(--txt);
+  font-family:Tahoma,Arial,sans-serif;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:16px;
+  padding-top:calc(16px + env(safe-area-inset-top,0px));
+  padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));
+}
+.card{
+  background:var(--card);border-radius:16px;padding:20px;
+  width:100%;max-width:420px;margin-top:16px;
+  box-shadow:0 4px 16px rgba(0,0,0,.3)
+}
 h1{font-size:22px;text-align:center;margin:8px 0 20px}
 h2{font-size:18px;color:var(--muted);margin-bottom:12px}
-input[type=text],textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #333;background:#0f1016;color:var(--txt);font-size:15px;margin-bottom:8px;font-family:inherit}
-textarea{min-height:80px;resize:vertical}
-button{width:100%;padding:14px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:16px;font-weight:bold;margin-top:10px;cursor:pointer}
+input[type=text],textarea{
+  width:100%;padding:12px;border-radius:10px;
+  border:1px solid #333;background:#0f1016;color:var(--txt);
+  font-size:15px;margin-bottom:8px;font-family:inherit
+}
+textarea{min-height:100px;resize:vertical;line-height:1.8}
+button{
+  width:100%;padding:14px;border-radius:12px;border:none;
+  background:var(--accent);color:#fff;font-size:16px;
+  font-weight:bold;margin-top:10px;cursor:pointer
+}
+button:disabled{opacity:.4;cursor:not-allowed}
 button.secondary{background:#333}
 button.danger{background:var(--red)}
-.pname{display:flex;gap:8px;align-items:center;background:#0f1016;padding:10px 14px;border-radius:10px;margin-bottom:8px}
+.pname{
+  display:flex;gap:8px;align-items:center;
+  background:#0f1016;padding:10px 14px;
+  border-radius:10px;margin-bottom:8px
+}
 .pname button{width:auto;padding:6px 10px;margin:0;background:var(--red)}
-.chip{display:inline-block;padding:10px 16px;margin:4px;border-radius:999px;background:#0f1016;border:2px solid #333;cursor:pointer}
+.chip{
+  display:inline-block;padding:10px 16px;margin:4px;
+  border-radius:999px;background:#0f1016;
+  border:2px solid #333;cursor:pointer
+}
 .chip.sel{border-color:var(--accent);background:#2a2440}
 .chip.correct{border-color:var(--green);background:rgba(46,204,113,.2);color:var(--green)}
 .chip.wrong{border-color:var(--red);background:rgba(231,76,60,.2);color:var(--red)}
-.role-box{text-align:center;padding:30px 10px;border-radius:16px;font-size:20px;font-weight:bold}
+.role-box{
+  text-align:center;padding:30px 10px;border-radius:16px;
+  font-size:20px;font-weight:bold
+}
 .role-in{background:rgba(46,204,113,.15);color:var(--green);border:2px solid var(--green)}
 .role-out{background:rgba(231,76,60,.15);color:var(--red);border:2px solid var(--red)}
 .muted{color:var(--muted);font-size:14px}
-.score{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #333}
-.toggle{display:flex;align-items:center;justify-content:space-between;background:#0f1016;padding:12px 14px;border-radius:10px;margin:10px 0}
-.sw{width:48px;height:26px;border-radius:999px;background:#333;position:relative;cursor:pointer;flex-shrink:0}
+.score{
+  display:flex;justify-content:space-between;
+  padding:8px 0;border-bottom:1px solid #333
+}
+.toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  background:#0f1016;padding:12px 14px;
+  border-radius:10px;margin:10px 0
+}
+.sw{
+  width:48px;height:26px;border-radius:999px;
+  background:#333;position:relative;cursor:pointer;flex-shrink:0
+}
 .sw.on{background:var(--accent)}
-.sw span{position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
+.sw span{
+  position:absolute;top:3px;right:3px;width:20px;height:20px;
+  border-radius:50%;background:#fff;transition:.2s
+}
 .sw.on span{right:25px}
-.catgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;max-height:380px;overflow-y:auto;padding:4px 4px 10px}
-.catcard{background:#0f1016;border:2px solid #333;border-radius:12px;padding:8px;text-align:center;cursor:pointer}
+.catgrid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));
+  gap:10px;max-height:380px;overflow-y:auto;padding:4px 4px 10px
+}
+.catcard{
+  background:#0f1016;border:2px solid #333;border-radius:12px;
+  padding:8px;text-align:center;cursor:pointer
+}
 .catcard.sel{border-color:var(--accent);background:#2a2440}
-.catcard img{width:100%;height:60px;object-fit:cover;border-radius:8px;margin-bottom:6px}
-.catcard .ic{font-size:30px;height:60px;display:flex;align-items:center;justify-content:center}
+.catcard img{
+  width:100%;height:60px;object-fit:cover;
+  border-radius:8px;margin-bottom:6px
+}
+.catcard .ic{
+  font-size:30px;height:60px;display:flex;
+  align-items:center;justify-content:center
+}
 .catcard .nm{font-size:12px;word-break:break-word}
-.catrow{display:flex;align-items:center;gap:10px;background:#0f1016;padding:10px;border-radius:10px;margin-bottom:8px}
+.catrow{
+  display:flex;align-items:center;gap:10px;
+  background:#0f1016;padding:10px;border-radius:10px;margin-bottom:8px
+}
 .catrow img{width:36px;height:36px;object-fit:cover;border-radius:8px}
 .catrow .ic{font-size:24px;width:36px;text-align:center}
-.imgprev{width:80px;height:80px;object-fit:cover;border-radius:10px;margin-bottom:8px}
+.catrow button{width:auto;padding:6px 10px;margin:0}
+.imgprev{
+  width:80px;height:80px;object-fit:cover;
+  border-radius:10px;margin-bottom:8px
+}
 </style>
 </head>
 <body>
+
 <h1>🕵️ مين برا السالفة</h1>
 <div id="app" class="card"></div>
 
 <script>
 const BASE_CATS = {
- "أكل":{words:["بيتزا","كبسة","شاورما","معجنات","تمر","قهوة عربية","مندي","فلافل"],
-  hints:["شي مرتبط بالمطبخ","تحصله غالبًا في المطاعم","له علاقة بوجبة رئيسية","يتقدم في المناسبات","له رائحة مميزة","يُطبخ على نار","يرتبط بوقت معين من اليوم","موجود في كل بيت تقريبًا"],img:null},
- "حيوانات":{words:["قط","أسد","جمل","صقر","حوت","نسر","فهد","غزال"],
-  hints:["يعيش في البر أو البحر","له صوت مميز","مذكور في أمثال شعبية","يرمز له الناس بصفة معينة","يتحرك بطريقة خاصة","يختلف حجمه عن غيره","يظهر في الوثائقيات","له مكانة رمزية عند العرب"],img:null},
- "أماكن":{words:["مطار","مستشفى","مدرسة","مسجد","مول","استاد","مكتبة","مخيم"],
-  hints:["مكان يزوره الناس بكثرة","له دخول وخروج محدد","يرتبط بنشاط يومي","فيه ناس كثير غالبًا","له وقت دوام معين","مبنى معروف في أي مدينة","يحتاج تنقل للوصول له","له قوانين خاصة بالدخول"],img:null}
+ "أكل":{
+  words:["بيتزا","كبسة","شاورما","معجنات","تمر","قهوة عربية","مندي","فلافل"],
+  hints:["شي مرتبط بالمطبخ","تحصله غالبًا في المطاعم","له علاقة بوجبة رئيسية","يتقدم في المناسبات","له رائحة مميزة","يُطبخ على نار","يرتبط بوقت معين من اليوم","موجود في كل بيت تقريبًا"],
+  img:null
+ },
+ "حيوانات":{
+  words:["قط","أسد","جمل","صقر","حوت","نسر","فهد","غزال"],
+  hints:["يعيش في البر أو البحر","له صوت مميز","مذكور في أمثال شعبية","يرمز له الناس بصفة معينة","يتحرك بطريقة خاصة","يختلف حجمه عن غيره","يظهر في الوثائقيات","له مكانة رمزية عند العرب"],
+  img:null
+ },
+ "أماكن":{
+  words:["مطار","مستشفى","مدرسة","مسجد","مول","استاد","مكتبة","مخيم"],
+  hints:["مكان يزوره الناس بكثرة","له دخول وخروج محدد","يرتبط بنشاط يومي","فيه ناس كثير غالبًا","له وقت دوام معين","مبنى معروف في أي مدينة","يحتاج تنقل للوصول له","له قوانين خاصة بالدخول"],
+  img:null
+ }
 };
+
 const DECOYS = {
- "بيتزا":["باستا","برغر","لازانيا","كاليزوني"],"كبسة":["مندي","مجبوس","برياني","مظبي"],
- "شاورما":["فلافل","كبدة","شيش طاووق","دونر"],"معجنات":["سمبوسة","فطاير","كرواسان","بقلاوة"],
- "تمر":["زبيب","مشمش مجفف","بلح","قمر الدين"],"قهوة عربية":["شاي","هيل","زعفران","قهوة تركية"],
- "مندي":["كبسة","مظبي","مجبوس","برياني"],"فلافل":["حمص","شاورما","كبة","سمبوسة"],
- "قط":["نمر","أسد","فهد","وشق"],"أسد":["نمر","فهد","تايغر","باما"],
- "جمل":["ناقة","حصان","حمار","بغل"],"صقر":["نسر","حدأة","شاهين","عقاب"],
- "حوت":["دلفين","قرش","فقمة","أخطبوط"],"نسر":["صقر","عقاب","شاهين","حدأة"],
- "فهد":["نمر","أسد","وشق","تايغر"],"غزال":["ظبي","أرنب","ماعز","خروف"],
- "مطار":["ميناء","محطة قطار","محطة حافلات","مرسى"],"مستشفى":["عيادة","صيدلية","مركز صحي","مختبر"],
- "مدرسة":["جامعة","معهد","روضة","كلية"],"مسجد":["جامع","مصلى","زاوية","مأذنة"],
- "مول":["سوق","بازار","معرض","محل"],"استاد":["ملعب","صالة رياضية","نادي","مضمار"],
- "مكتبة":["مكتب","أرشيف","متحف","قاعة مطالعة"],"مخيم":["منتجع","استراحة","شاليه","كرفان"]
+ "بيتزا":["باستا","برغر","لازانيا","كاليزوني"],
+ "كبسة":["مندي","مجبوس","برياني","مظبي"],
+ "شاورما":["فلافل","كبدة","شيش طاووق","دونر"],
+ "معجنات":["سمبوسة","فطاير","كرواسان","بقلاوة"],
+ "تمر":["زبيب","مشمش مجفف","بلح","قمر الدين"],
+ "قهوة عربية":["شاي","هيل","زعفران","قهوة تركية"],
+ "مندي":["كبسة","مظبي","مجبوس","برياني"],
+ "فلافل":["حمص","شاورما","كبة","سمبوسة"],
+ "قط":["نمر","أسد","فهد","وشق"],
+ "أسد":["نمر","فهد","تايغر","باما"],
+ "جمل":["ناقة","حصان","حمار","بغل"],
+ "صقر":["نسر","حدأة","شاهين","عقاب"],
+ "حوت":["دلفين","قرش","فقمة","أخطبوط"],
+ "نسر":["صقر","عقاب","شاهين","حدأة"],
+ "فهد":["نمر","أسد","وشق","تايغر"],
+ "غزال":["ظبي","أرنب","ماعز","خروف"],
+ "مطار":["ميناء","محطة قطار","محطة حافلات","مرسى"],
+ "مستشفى":["عيادة","صيدلية","مركز صحي","مختبر"],
+ "مدرسة":["جامعة","معهد","روضة","كلية"],
+ "مسجد":["جامع","مصلى","زاوية","مأذنة"],
+ "مول":["سوق","بازار","معرض","محل"],
+ "استاد":["ملعب","صالة رياضية","نادي","مضمار"],
+ "مكتبة":["مكتب","أرشيف","متحف","قاعة مطالعة"],
+ "مخيم":["منتجع","استراحة","شاليه","كرفان"]
 };
-const DEFAULT_HINTS = ["فكر بشكل عام بالتصنيف قبل ما تجاوب","حاول تربط كلامك بموضوع التصنيف","لا تذكر الكلمة أو جزء منها","فكر بشي قريب لها بنفس المجال","اربطها بموقف تستخدمها فيه","خلك غامض لكن منطقي"];
 
-let cats = JSON.parse(localStorage.getItem('bs_categories_cache')||'null') || JSON.parse(JSON.stringify(BASE_CATS));
-let DATA = {};
-function refreshData(){ DATA = {...cats}; DATA["عشوائي"] = { words: Object.values(cats).flatMap(c=>c.words), hints: Object.values(cats).flatMap(c=>c.hints), img:null }; }
-refreshData();
+const DEFAULT_HINTS = [
+ "فكر بشكل عام بالتصنيف قبل ما تجاوب",
+ "حاول تربط كلامك بموضوع التصنيف",
+ "لا تذكر الكلمة أو جزء منها",
+ "فكر بشي قريب لها بنفس المجال",
+ "اربطها بموقف تستخدمها فيه",
+ "خلك غامض لكن منطقي"
+];
 
-let dbCap=null, catsDocRef=null, canEdit=false;
-(async()=>{
-  canEdit = true;
-  render();
-})();
-
-function saveCats(){
-  localStorage.setItem('bs_categories_cache', JSON.stringify(cats));
-  refreshData();
-  if(dbCap && catsDocRef){ catsDocRef.set({cats}).catch(()=>{}); }
+function loadCategories(){
+  try{
+    const saved=JSON.parse(localStorage.getItem('bs_categories_cache')||'null');
+    return saved && typeof saved==='object'
+      ? saved
+      : JSON.parse(JSON.stringify(BASE_CATS));
+  }catch(e){
+    return JSON.parse(JSON.stringify(BASE_CATS));
+  }
 }
 
-let names = JSON.parse(localStorage.getItem('bs_names')||'[]');
-let state = {catCount:3, cats:[], word:'', impostorIdx:-1, revealIdx:0, hintEnabled:true, votes:{}, voteIdx:0, starter:0};
-const app = document.getElementById('app');
+let cats=loadCategories();
+let DATA={};
 
-function render(){ app.innerHTML=''; screens[state.screen||'names'](); }
+function refreshData(){
+  DATA={...cats};
+  DATA["عشوائي"]={
+    words:Object.values(cats).flatMap(c=>c.words||[]),
+    hints:Object.values(cats).flatMap(c=>c.hints||[]),
+    img:null
+  };
+}
+refreshData();
 
-const screens = {
+let canEdit=true;
+
+let names=JSON.parse(localStorage.getItem('bs_names')||'[]');
+
+let state={
+  catCount:3,cats:[],word:'',impostorIdx:-1,
+  revealIdx:0,hintEnabled:true,votes:{},
+  voteIdx:0,starter:0
+};
+
+const app=document.getElementById('app');
+
+function render(){
+  app.innerHTML='';
+  screens[state.screen||'names']();
+}
+
+function saveCats(){
+  refreshData();
+  try{
+    localStorage.setItem('bs_categories_cache',JSON.stringify(cats));
+  }catch(e){
+    alert('مساحة التخزين ممتلئة. جرّب صورة أصغر أو احذف بعض الصور.');
+  }
+}
+
+const screens={
+
 names(){
-  let h = `<h2>أسماء المشاركين (${names.length})</h2><div id="list"></div>
-  <input type="text" id="nm" placeholder="اسم اللاعب">
-  <button onclick="addName()">إضافة</button>
-  <button class="secondary" ${names.length<3?'disabled':''} onclick="goCat()">اختر التصنيفات ←</button>
-  ${canEdit?'<button class="secondary" onclick="goStudio()">⚙️ الاستوديو (إدارة التصنيفات)</button>':''}
-  <p class="muted">لازم 3 لاعبين على الأقل</p>`;
-  app.innerHTML = h;
-  const list = document.getElementById('list');
-  names.forEach((n,i)=>{ const d=document.createElement('div'); d.className='pname';
-    d.innerHTML = `<span style="flex:1">${n}</span><button onclick="delName(${i})">حذف</button>`; list.appendChild(d); });
-},
-studio(){
-  const keys = Object.keys(cats);
-  app.innerHTML = `<h2>الاستوديو — تصنيفاتك (${keys.length})</h2>
-  <div id="catlist"></div>
-  <button onclick="openCatEdit(null)">➕ تصنيف جديد</button>
-  <button class="secondary" onclick="state.screen='names';render()">رجوع</button>`;
-  const list = document.getElementById('catlist');
-  keys.forEach(k=>{
-    const c = cats[k];
-    const d = document.createElement('div'); d.className='catrow';
-    d.innerHTML = `${c.img?`<img src="/_blob/${c.img}">`:`<span class="ic">🗂️</span>`}
-    <span style="flex:1">${k} <span class="muted">(${c.words.length} كلمة)</span></span>
-    <button style="width:auto;padding:6px 10px;margin:0" onclick="openCatEdit('${k}')">تعديل</button>
-    <button style="width:auto;padding:6px 10px;margin:0;background:var(--red)" onclick="deleteCategory('${k}')">حذف</button>`;
+  app.innerHTML=`
+    <h2>أسماء المشاركين (${names.length})</h2>
+    <div id="list"></div>
+    <input type="text" id="nm" placeholder="اسم اللاعب">
+    <button onclick="addName()">إضافة</button>
+    <button class="secondary" ${names.length<3?'disabled':''} onclick="goCat()">اختر التصنيفات ←</button>
+    ${canEdit?'<button class="secondary" onclick="goStudio()">⚙️ الاستوديو (إدارة التصنيفات)</button>':''}
+    <p class="muted">لازم 3 لاعبين على الأقل</p>
+  `;
+
+  const list=document.getElementById('list');
+  names.forEach((n,i)=>{
+    const d=document.createElement('div');
+    d.className='pname';
+
+    const span=document.createElement('span');
+    span.style.flex='1';
+    span.textContent=n;
+
+    const btn=document.createElement('button');
+    btn.textContent='حذف';
+    btn.onclick=()=>delName(i);
+
+    d.append(span,btn);
     list.appendChild(d);
   });
 },
+
+studio(){
+  const keys=Object.keys(cats);
+
+  app.innerHTML=`
+    <h2>الاستوديو — تصنيفاتك (${keys.length})</h2>
+    <div id="catlist"></div>
+    <button onclick="openCatEdit(null)">➕ تصنيف جديد</button>
+    <button class="secondary" onclick="state.screen='names';render()">رجوع</button>
+  `;
+
+  const list=document.getElementById('catlist');
+
+  keys.forEach(k=>{
+    const c=cats[k];
+    const d=document.createElement('div');
+    d.className='catrow';
+
+    if(c.img){
+      const img=document.createElement('img');
+      img.src=c.img;
+      d.appendChild(img);
+    }else{
+      const ic=document.createElement('span');
+      ic.className='ic';
+      ic.textContent='🗂️';
+      d.appendChild(ic);
+    }
+
+    const label=document.createElement('span');
+    label.style.flex='1';
+    label.textContent=`${k} (${c.words.length} كلمة)`;
+    d.appendChild(label);
+
+    const edit=document.createElement('button');
+    edit.textContent='تعديل';
+    edit.onclick=()=>openCatEdit(k);
+
+    const del=document.createElement('button');
+    del.textContent='حذف';
+    del.style.background='var(--red)';
+    del.onclick=()=>deleteCategory(k);
+
+    d.append(edit,del);
+    list.appendChild(d);
+  });
+},
+
 catedit(){
-  const editing = state.editingCat;
-  const c = editing ? cats[editing] : {words:[],hints:[],img:null};
-  const previewUrl = state.tempImgUrl || (c.img?('/_blob/'+c.img):null);
-  app.innerHTML = `<h2>${editing?'تعديل: '+editing:'تصنيف جديد'}</h2>
-  <input type="text" id="catName" placeholder="اسم التصنيف" value="${editing||''}">
-  <label class="muted">الكلمات (وحدة بكل سطر)</label>
-  <textarea id="catWords">${c.words.join('\\n')}</textarea>
-  <label class="muted">التلميحات (اختياري، وحدة بكل سطر)</label>
-  <textarea id="catHints">${c.hints.filter(h=>!DEFAULT_HINTS.includes(h)).join('\\n')}</textarea>
-  <label class="muted">صورة التصنيف (اختياري)</label>
-  ${previewUrl?`<img class="imgprev" src="${previewUrl}">`:''}
-  <input type="file" accept="image/*" onchange="handleImg(event)">
-  <button onclick="saveCategory('${editing||''}')">حفظ</button>
-  <button class="secondary" onclick="state.tempImg=null;state.tempImgUrl=null;goStudio()">إلغاء</button>`;
+  const editing=state.editingCat;
+  const c=editing?cats[editing]:{words:[],hints:[],img:null};
+  const previewUrl=state.tempImgUrl||(c.img||null);
+
+  app.innerHTML=`
+    <h2>${editing?'تعديل التصنيف':'تصنيف جديد'}</h2>
+    <input type="text" id="catName" placeholder="اسم التصنيف">
+    <label class="muted">الكلمات (كل كلمة في سطر)</label>
+    <textarea id="catWords" placeholder="مثال:
+بيتزا
+برغر
+شاورما
+كبسة"></textarea>
+
+    <label class="muted">التلميحات (اختياري، كل تلميح في سطر)</label>
+    <textarea id="catHints" placeholder="اكتب التلميحات هنا..."></textarea>
+
+    <label class="muted">صورة التصنيف (اختياري)</label>
+    <div id="imgPreview"></div>
+    <input type="file" id="catImage" accept="image/*">
+    <button onclick="saveCategory()">حفظ</button>
+    <button class="secondary" onclick="state.tempImg=null;state.tempImgUrl=null;goStudio()">إلغاء</button>
+  `;
+
+  document.getElementById('catName').value=editing||'';
+  document.getElementById('catWords').value=(c.words||[]).join('\n');
+  document.getElementById('catHints').value=(c.hints||[]).filter(h=>!DEFAULT_HINTS.includes(h)).join('\n');
+
+  if(previewUrl){
+    document.getElementById('imgPreview').innerHTML=
+      `<img class="imgprev" src="${previewUrl}">`;
+  }
+
+  document.getElementById('catImage').onchange=handleImg;
 },
+
 catcount(){
-  const opts = [1,2,3,4,5,6,7,8,9,10];
-  app.innerHTML = `<h2>كم تصنيف تبغى؟</h2>
-  <div>${opts.map(n=>`<span class="chip ${state.catCount==n?'sel':''}" onclick="setCatCount(${n})">${n}</span>`).join('')}</div>
-  <div class="toggle"><span>هل تريد تلميح للامبوستر؟</span><div class="sw ${state.hintEnabled?'on':''}" onclick="toggleHint()"><span></span></div></div>
-  <button ${state.catCount?'':'disabled'} onclick="goPickCats()">التالي ←</button>
-  <button class="secondary" onclick="state.screen='names';render()">رجوع</button>`;
+  const opts=[1,2,3,4,5,6,7,8,9,10];
+
+  app.innerHTML=`
+    <h2>كم تصنيف تبغى؟</h2>
+    <div>
+      ${opts.map(n=>`<span class="chip ${state.catCount===n?'sel':''}" onclick="setCatCount(${n})">${n}</span>`).join('')}
+    </div>
+    <div class="toggle">
+      <span>هل تريد تلميح للامبوستر؟</span>
+      <div class="sw ${state.hintEnabled?'on':''}" onclick="toggleHint()"><span></span></div>
+    </div>
+    <button onclick="goPickCats()">التالي ←</button>
+    <button class="secondary" onclick="state.screen='names';render()">رجوع</button>
+  `;
 },
+
 pickcats(){
-  const all = Object.keys(DATA);
-  app.innerHTML = `<h2>اختر ${state.catCount} تصنيف (${state.cats.length}/${state.catCount})</h2>
-  <div class="catgrid">${all.map(c=>{
-    const d = DATA[c];
-    return `<div class="catcard ${state.cats.includes(c)?'sel':''}" onclick="toggleCat('${c}')">
-      ${d.img?`<img src="/_blob/${d.img}">`:`<div class="ic">${c==='عشوائي'?'🎲':'🗂️'}</div>`}
-      <div class="nm">${c}</div></div>`;
-  }).join('')}</div>
-  <button ${state.cats.length==state.catCount?'':'disabled'} onclick="startRound()">ابدأ الجولة ←</button>
-  <button class="secondary" onclick="state.screen='catcount';render()">رجوع</button>`;
+  const all=Object.keys(DATA);
+
+  app.innerHTML=`
+    <h2>اختر ${state.catCount} تصنيف (${state.cats.length}/${state.catCount})</h2>
+    <div class="catgrid">
+      ${all.map(c=>{
+        const d=DATA[c];
+        return `
+          <div class="catcard ${state.cats.includes(c)?'sel':''}" onclick="toggleCat('${c}')">
+            ${d.img?`<img src="${d.img}">`:`<div class="ic">${c==='عشوائي'?'🎲':'🗂️'}</div>`}
+            <div class="nm">${c}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+    <button ${state.cats.length===state.catCount?'':'disabled'} onclick="startRound()">ابدأ الجولة ←</button>
+    <button class="secondary" onclick="state.screen='catcount';render()">رجوع</button>
+  `;
 },
+
 handoff(){
-  const p = names[state.revealIdx];
-  app.innerHTML = `<h2>عطِ الجوال لـ: ${p}</h2><p class="muted">تأكد الباقين ما يشوفون الشاشة</p>
-  <button onclick="reveal()">أنا ${p}، اكشف لي</button>`;
+  const p=names[state.revealIdx];
+  app.innerHTML=`
+    <h2>عطِ الجوال لـ: ${p}</h2>
+    <p class="muted">تأكد الباقين ما يشوفون الشاشة</p>
+    <button onclick="reveal()">أنا ${p}، اكشف لي</button>
+  `;
 },
+
 reveal(){
-  const isImp = state.revealIdx===state.impostorIdx;
-  app.innerHTML = `<div class="role-box ${isImp?'role-out':'role-in'}">${isImp?'انت برا السالفة':'انت داخل السالفة'}</div>
-  <div style="text-align:center;margin-top:12px">${isImp?'':'<b>الكلمة: '+state.word+'</b>'}</div>
-  ${(isImp && state.hintEnabled)?`<button class="secondary" onclick="showHint()">أعطني تلميح</button><p id="hintTxt" class="muted" style="text-align:center"></p>`:''}
-  <button onclick="nextReveal()">خلص، التالي</button>`;
+  const isImp=state.revealIdx===state.impostorIdx;
+
+  app.innerHTML=`
+    <div class="role-box ${isImp?'role-out':'role-in'}">
+      ${isImp?'أنت برا السالفة':'أنت داخل السالفة'}
+    </div>
+    <div style="text-align:center;margin-top:12px">
+      ${isImp?'':'<b>الكلمة: '+state.word+'</b>'}
+    </div>
+    ${(isImp&&state.hintEnabled)?`
+      <button class="secondary" onclick="showHint()">أعطني تلميح</button>
+      <p id="hintTxt" class="muted" style="text-align:center"></p>
+    `:''}
+    <button onclick="nextReveal()">خلص، التالي</button>
+  `;
 },
+
 startvote(){
-  app.innerHTML = `<h2 style="text-align:center">بدأ ${names[state.starter]} النقاش</h2>
-  <p class="muted" style="text-align:center">ناقشوا، وبعدها اضغطوا</p>
-  <button onclick="goVoteScreen()">بدأ التصويت</button>`;
+  app.innerHTML=`
+    <h2 style="text-align:center">بدأ ${names[state.starter]} النقاش</h2>
+    <p class="muted" style="text-align:center">ناقشوا، وبعدها اضغطوا</p>
+    <button onclick="goVoteScreen()">بدأ التصويت</button>
+  `;
 },
+
 vote(){
-  const voter = names[state.voteIdx];
-  app.innerHTML = `<h2>${voter}، صوّت على مين؟</h2>
-  <div>${names.map((n,i)=> i===state.voteIdx?'':`<span class="chip ${state.tempVote===i?'sel':''}" onclick="pickVote(${i})">${n}</span>`).join('')}</div>
-  <button ${state.tempVote==null?'disabled':''} onclick="confirmVote()">تم</button>`;
+  const voter=names[state.voteIdx];
+
+  app.innerHTML=`
+    <h2>${voter}، صوّت على مين؟</h2>
+    <div>
+      ${names.map((n,i)=>i===state.voteIdx?'':`
+        <span class="chip ${state.tempVote===i?'sel':''}" onclick="pickVote(${i})">${n}</span>
+      `).join('')}
+    </div>
+    <button ${state.tempVote==null?'disabled':''} onclick="confirmVote()">تم</button>
+  `;
 },
+
 result(){
-  const imp = names[state.impostorIdx];
-  const tally = {}; Object.values(state.votes).forEach(v=>tally[v]=(tally[v]||0)+1);
-  const mostVoted = Object.keys(tally).sort((a,b)=>tally[b]-tally[a])[0];
-  const caught = mostVoted!=null && names[mostVoted]===imp;
-  app.innerHTML = `<h2 style="text-align:center">برا السالفة كان: <span style="color:var(--red)">${imp}</span></h2>
-  <p style="text-align:center">${caught?'✅ انكشف!':'❌ ما انكشف'}</p>
-  <button onclick="goGuess()">يدور ${imp} على الكلمة ←</button>`;
+  const imp=names[state.impostorIdx];
+  const tally={};
+
+  Object.values(state.votes).forEach(v=>{
+    tally[v]=(tally[v]||0)+1;
+  });
+
+  const mostVoted=Object.keys(tally).sort((a,b)=>tally[b]-tally[a])[0];
+  const caught=mostVoted!=null&&Number(mostVoted)===state.impostorIdx;
+
+  app.innerHTML=`
+    <h2 style="text-align:center">برا السالفة كان:
+      <span style="color:var(--red)">${imp}</span>
+    </h2>
+    <p style="text-align:center">${caught?'✅ انكشف!':'❌ ما انكشف'}</p>
+    <button onclick="goGuess()">يدور ${imp} على الكلمة ←</button>
+  `;
 },
+
 guess(){
-  const correct = state.word;
-  const decoys = DECOYS[correct] || shuffle(DATA[state.guessCat].words.filter(w=>w!==correct)).slice(0,4);
-  const opts = shuffle([correct, ...decoys]);
-  app.innerHTML = `<h2>${names[state.impostorIdx]}، اختر الكلمة الصح</h2>
-  <div id="guessOpts">${opts.map(o=>`<span class="chip" onclick="finishGuess('${o}','${correct}',this)">${o}</span>`).join('')}</div>`;
+  const correct=state.word;
+  const decoys=DECOYS[correct]||
+    shuffle(DATA[state.guessCat].words.filter(w=>w!==correct)).slice(0,4);
+  const opts=shuffle([correct,...decoys]);
+
+  app.innerHTML=`
+    <h2>${names[state.impostorIdx]}، اختر الكلمة الصح</h2>
+    <div id="guessOpts">
+      ${opts.map((o,i)=>`
+        <span class="chip" data-index="${i}" onclick="finishGuess(${i})">${o}</span>
+      `).join('')}
+    </div>
+  `;
+
+  state.guessOptions=opts;
 },
+
 feedback(){
-  app.innerHTML = `<h2 style="text-align:center">${state.guessedRight?'✅ إجابة صحيحة':'❌ إجابة خاطئة'}</h2>
-  <p style="text-align:center">الكلمة الصح كانت: <b>${state.word}</b></p>
-  <button onclick="goDone()">شوف النتيجة النهائية</button>`;
+  app.innerHTML=`
+    <h2 style="text-align:center">${state.guessedRight?'✅ إجابة صحيحة':'❌ إجابة خاطئة'}</h2>
+    <p style="text-align:center">الكلمة الصح كانت: <b>${state.word}</b></p>
+    <button onclick="goDone()">شوف النتيجة النهائية</button>
+  `;
 },
+
 done(){
-  const imp = names[state.impostorIdx];
-  const tally = {}; Object.values(state.votes).forEach(v=>tally[v]=(tally[v]||0)+1);
+  const imp=names[state.impostorIdx];
+  const tally={};
+
+  Object.values(state.votes).forEach(v=>{
+    tally[v]=(tally[v]||0)+1;
+  });
+
   let rows='';
+
   names.forEach((n,i)=>{
     let pts=0;
-    if(i!==state.impostorIdx && state.votes[i]==state.impostorIdx) pts+=1;
+    if(i!==state.impostorIdx&&state.votes[i]===state.impostorIdx) pts+=1;
     rows+=`<div class="score"><span>${n}</span><span>${pts}</span></div>`;
   });
-  const impPts = (state.guessedRight?2:0) + (tally[state.impostorIdx]?0:1);
+
+  const impPts=(state.guessedRight?2:0)+(tally[state.impostorIdx]?0:1);
+
   rows+=`<div class="score"><b>${imp} (برا السالفة)</b><b>${impPts}</b></div>`;
-  app.innerHTML = `<h2>النتيجة النهائية</h2>${rows}
-  <button onclick="startRound()">جولة جديدة (نفس التصنيفات)</button>
-  <button class="secondary" onclick="changeCats()">غيّر التصنيفات</button>`;
+
+  app.innerHTML=`
+    <h2>النتيجة النهائية</h2>
+    ${rows}
+    <button onclick="startRound()">جولة جديدة (نفس التصنيفات)</button>
+    <button class="secondary" onclick="changeCats()">غيّر التصنيفات</button>
+  `;
 }
+
 };
 
-function addName(){ const i=document.getElementById('nm'); const v=i.value.trim(); if(v){names.push(v); localStorage.setItem('bs_names',JSON.stringify(names));} state.screen='names'; render(); }
-function delName(i){ names.splice(i,1); localStorage.setItem('bs_names',JSON.stringify(names)); render(); }
-function goCat(){ state.screen='catcount'; render(); }
-function goStudio(){ if(!canEdit) return; state.screen='studio'; render(); }
-function openCatEdit(key){ if(!canEdit) return; state.editingCat=key; state.tempImg=null; state.tempImgUrl=null; state.screen='catedit'; render(); }
-async function handleImg(ev){
-  const f=ev.target.files[0]; if(!f) return;
-  try{
-    const assets = await claude.use('assets');
-    if(!assets){ alert('ما عندك صلاحية رفع صور'); return; }
-    const res = await assets.upload(f);
-    state.tempImg = res.id; state.tempImgUrl = res.url; render();
-  }catch(e){ alert('فشل رفع الصورة'); }
+function addName(){
+  const input=document.getElementById('nm');
+  const value=input.value.trim();
+
+  if(!value)return;
+
+  names.push(value);
+  localStorage.setItem('bs_names',JSON.stringify(names));
+  state.screen='names';
+  render();
 }
-function saveCategory(oldKey){
-  if(!canEdit) return;
-  const name = document.getElementById('catName').value.trim();
-  const words = document.getElementById('catWords').value.split('\\n').map(w=>w.trim()).filter(Boolean);
-  let hints = document.getElementById('catHints').value.split('\\n').map(h=>h.trim()).filter(Boolean);
-  if(!name || words.length<4){ alert('لازم اسم و4 كلمات على الأقل'); return; }
-  if(hints.length===0) hints = DEFAULT_HINTS;
-  const img = state.tempImg !== undefined && state.tempImg !== null ? state.tempImg : (oldKey ? cats[oldKey].img : null);
-  if(oldKey && oldKey!==name) delete cats[oldKey];
-  cats[name] = {words, hints, img};
-  saveCats(); state.tempImg=null; state.tempImgUrl=null; goStudio();
+
+function delName(i){
+  names.splice(i,1);
+  localStorage.setItem('bs_names',JSON.stringify(names));
+  render();
 }
-function deleteCategory(key){ if(!canEdit) return; if(confirm('تحذف تصنيف "'+key+'"؟')){ delete cats[key]; saveCats(); goStudio(); } }
-function setCatCount(n){ state.catCount=n; state.cats=[]; render(); }
-function toggleHint(){ state.hintEnabled=!state.hintEnabled; render(); }
-function goPickCats(){ state.screen='pickcats'; render(); }
-function toggleCat(c){ const i=state.cats.indexOf(c); if(i>-1) state.cats.splice(i,1); else if(state.cats.length<state.catCount) state.cats.push(c); render(); }
-function shuffle(a){ a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+
+function goCat(){
+  state.screen='catcount';
+  render();
+}
+
+function goStudio(){
+  if(!canEdit)return;
+  state.screen='studio';
+  render();
+}
+
+function openCatEdit(key){
+  if(!canEdit)return;
+  state.editingCat=key;
+  state.tempImg=null;
+  state.tempImgUrl=null;
+  state.screen='catedit';
+  render();
+}
+
+function handleImg(ev){
+  const file=ev.target.files[0];
+  if(!file)return;
+
+  if(!file.type.startsWith('image/')){
+    alert('اختر ملف صورة');
+    return;
+  }
+
+  if(file.size>2*1024*1024){
+    alert('حجم الصورة كبير. اختر صورة أقل من 2 ميغابايت.');
+    ev.target.value='';
+    return;
+  }
+
+  const reader=new FileReader();
+
+  reader.onload=()=>{
+    state.tempImg=reader.result;
+    state.tempImgUrl=reader.result;
+
+    const preview=document.getElementById('imgPreview');
+    preview.innerHTML='';
+    const img=document.createElement('img');
+    img.className='imgprev';
+    img.src=reader.result;
+    preview.appendChild(img);
+  };
+
+  reader.onerror=()=>alert('تعذر قراءة الصورة');
+  reader.readAsDataURL(file);
+}
+
+function saveCategory(){
+  if(!canEdit)return;
+
+  const name=document.getElementById('catName').value.trim();
+
+  const words=document.getElementById('catWords').value
+    .split(/\r?\n/)
+    .map(w=>w.trim())
+    .filter(Boolean);
+
+  let hints=document.getElementById('catHints').value
+    .split(/\r?\n/)
+    .map(h=>h.trim())
+    .filter(Boolean);
+
+  if(!name||words.length<4){
+    alert('لازم اسم و4 كلمات على الأقل، وكل كلمة في سطر مستقل');
+    return;
+  }
+
+  const oldKey=state.editingCat;
+
+  if(hints.length===0)hints=[...DEFAULT_HINTS];
+
+  const oldImage=oldKey&&cats[oldKey]?cats[oldKey].img:null;
+  const img=state.tempImg!==undefined&&state.tempImg!==null
+    ?state.tempImg
+    :oldImage;
+
+  if(oldKey&&oldKey!==name){
+    delete cats[oldKey];
+  }
+
+  cats[name]={words,hints,img};
+
+  saveCats();
+
+  state.tempImg=null;
+  state.tempImgUrl=null;
+  state.editingCat=null;
+
+  goStudio();
+}
+
+function deleteCategory(key){
+  if(!canEdit)return;
+
+  if(confirm('تحذف تصنيف "'+key+'"؟')){
+    delete cats[key];
+    saveCats();
+    goStudio();
+  }
+}
+
+function setCatCount(n){
+  state.catCount=n;
+  state.cats=[];
+  render();
+}
+
+function toggleHint(){
+  state.hintEnabled=!state.hintEnabled;
+  render();
+}
+
+function goPickCats(){
+  state.cats=[];
+  state.screen='pickcats';
+  render();
+}
+
+function toggleCat(c){
+  const i=state.cats.indexOf(c);
+
+  if(i>-1){
+    state.cats.splice(i,1);
+  }else if(state.cats.length<state.catCount){
+    state.cats.push(c);
+  }
+
+  render();
+}
+
+function shuffle(a){
+  a=[...a];
+
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+
+  return a;
+}
+
 function startRound(){
-  const cat = state.cats[Math.floor(Math.random()*state.cats.length)];
-  state.guessCat = cat;
-  state.word = DATA[cat].words[Math.floor(Math.random()*DATA[cat].words.length)];
-  state.impostorIdx = Math.floor(Math.random()*names.length);
-  state.revealIdx = 0; state.votes={}; state.voteIdx=0; state.guessedRight=false;
-  state.screen='handoff'; render();
+  if(!names.length||!state.cats.length)return;
+
+  const cat=state.cats[Math.floor(Math.random()*state.cats.length)];
+
+  if(!DATA[cat]||!DATA[cat].words.length){
+    alert('هذا التصنيف لا يحتوي على كلمات');
+    return;
+  }
+
+  state.guessCat=cat;
+  state.word=DATA[cat].words[Math.floor(Math.random()*DATA[cat].words.length)];
+  state.impostorIdx=Math.floor(Math.random()*names.length);
+  state.revealIdx=0;
+  state.votes={};
+  state.voteIdx=0;
+  state.guessedRight=false;
+  state.tempVote=null;
+
+  state.screen='handoff';
+  render();
 }
-function changeCats(){ state.cats=[]; state.screen='catcount'; render(); }
-function reveal(){ state.screen='reveal'; render(); }
-function showHint(){ const cat=state.guessCat; const h=DATA[cat].hints[Math.floor(Math.random()*DATA[cat].hints.length)]; document.getElementById('hintTxt').textContent='تلميح: '+h; }
-function nextReveal(){ state.revealIdx++; if(state.revealIdx>=names.length){ state.starter=Math.floor(Math.random()*names.length); state.screen='startvote'; } else { state.screen='handoff'; } render(); }
-function goVoteScreen(){ state.votes={}; state.voteIdx=0; state.tempVote=null; state.screen='vote'; render(); }
-function pickVote(i){ state.tempVote=i; render(); }
-function confirmVote(){ state.votes[state.voteIdx]=state.tempVote; state.voteIdx++; state.tempVote=null;
-  if(state.voteIdx>=names.length){ state.screen='result'; } render(); }
-function goGuess(){ state.screen='guess'; render(); }
-function finishGuess(chosen,correct,el){
-  state.guessedRight = chosen===correct;
-  document.querySelectorAll('#guessOpts .chip').forEach(c=>{
-    if(c.textContent===correct) c.classList.add('correct');
-    else if(c===el) c.classList.add('wrong');
+
+function changeCats(){
+  state.cats=[];
+  state.screen='catcount';
+  render();
+}
+
+function reveal(){
+  state.screen='reveal';
+  render();
+}
+
+function showHint(){
+  const hints=DATA[state.guessCat].hints||DEFAULT_HINTS;
+  const h=hints[Math.floor(Math.random()*hints.length)];
+  document.getElementById('hintTxt').textContent='تلميح: '+h;
+}
+
+function nextReveal(){
+  state.revealIdx++;
+
+  if(state.revealIdx>=names.length){
+    state.starter=Math.floor(Math.random()*names.length);
+    state.screen='startvote';
+  }else{
+    state.screen='handoff';
+  }
+
+  render();
+}
+
+function goVoteScreen(){
+  state.votes={};
+  state.voteIdx=0;
+  state.tempVote=null;
+  state.screen='vote';
+  render();
+}
+
+function pickVote(i){
+  state.tempVote=i;
+  render();
+}
+
+function confirmVote(){
+  if(state.tempVote==null)return;
+
+  state.votes[state.voteIdx]=state.tempVote;
+  state.voteIdx++;
+  state.tempVote=null;
+
+  if(state.voteIdx>=names.length){
+    state.screen='result';
+  }
+
+  render();
+}
+
+function goGuess(){
+  state.screen='guess';
+  render();
+}
+
+function finishGuess(index){
+  const chosen=state.guessOptions[index];
+  state.guessedRight=chosen===state.word;
+
+  document.querySelectorAll('#guessOpts .chip').forEach((chip,i)=>{
+    if(state.guessOptions[i]===state.word){
+      chip.classList.add('correct');
+    }else if(i===index){
+      chip.classList.add('wrong');
+    }
   });
-  setTimeout(()=>{ state.screen='feedback'; render(); }, 900);
+
+  document.querySelectorAll('#guessOpts .chip').forEach(chip=>{
+    chip.onclick=null;
+  });
+
+  setTimeout(()=>{
+    state.screen='feedback';
+    render();
+  },900);
 }
-function goDone(){ state.screen='done'; render(); }
+
+function goDone(){
+  state.screen='done';
+  render();
+}
 
 render();
 </script>
