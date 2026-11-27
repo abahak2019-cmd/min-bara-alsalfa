@@ -69,8 +69,17 @@ let cats=loadCategories(),DATA={};
 function refreshData(){DATA={...cats};DATA["عشوائي"]={words:Object.values(cats).flatMap(c=>c.words||[]),hints:Object.values(cats).flatMap(c=>c.hints||[]),img:null}}
 refreshData();
 let names=JSON.parse(localStorage.getItem('bs_names')||'[]');
-let sessionStats={rounds:0,impostorCounts:[]},lastImpostorIdx=-1,impostorStreak=0;
-function resetSessionTracking(){sessionStats={rounds:0,impostorCounts:Array(names.length).fill(0)};lastImpostorIdx=-1;impostorStreak=0}
+let sessionStats={rounds:0,impostorCounts:[],scores:[]},lastImpostorIdx=-1,impostorStreak=0;
+
+function resetSessionTracking(){
+  sessionStats={
+    rounds:0,
+    impostorCounts:Array(names.length).fill(0),
+    scores:Array(names.length).fill(0)
+  };
+  lastImpostorIdx=-1;
+  impostorStreak=0;
+}
 resetSessionTracking();
 let state={catCount:1,cats:[],word:'',impostorIdx:-1,revealIdx:0,hintEnabled:true,votes:{},voteIdx:0,starter:0,roundRecorded:false};
 const app=document.getElementById('app');
@@ -198,7 +207,56 @@ async function exportGame(){
 }
 function chooseImpostor(){const weights=names.map((n,i)=>i!==lastImpostorIdx?1:Math.max(.1,1-.1*(impostorStreak-1)));let r=Math.random()*weights.reduce((s,w)=>s+w,0);for(let i=0;i<weights.length;i++){r-=weights[i];if(r<0)return i}return weights.length-1}
 function updateImpostorStreak(i){if(i===lastImpostorIdx)impostorStreak++;else{lastImpostorIdx=i;impostorStreak=1}}
-function recordRoundStats(){if(state.roundRecorded)return;sessionStats.rounds++;if(sessionStats.impostorCounts.length!==names.length)sessionStats.impostorCounts=Array(names.length).fill(0);if(state.impostorIdx>=0&&state.impostorIdx<names.length)sessionStats.impostorCounts[state.impostorIdx]++;state.roundRecorded=true}
+function recordRoundStats(){
+  if(state.roundRecorded)return;
+
+  sessionStats.rounds++;
+
+  if(sessionStats.impostorCounts.length!==names.length){
+    sessionStats.impostorCounts=Array(names.length).fill(0);
+  }
+
+  if(sessionStats.scores.length!==names.length){
+    sessionStats.scores=Array(names.length).fill(0);
+  }
+
+  const tally={};
+
+  Object.values(state.votes).forEach(v=>{
+    tally[v]=(tally[v]||0)+1;
+  });
+
+  const mostVoted=Object.keys(tally).sort(
+    (a,b)=>tally[b]-tally[a]
+  )[0];
+
+  const caught=mostVoted!=null&&
+    Number(mostVoted)===state.impostorIdx;
+
+  // نقطة لكل لاعب صوّت بشكل صحيح
+  names.forEach((name,i)=>{
+    if(i!==state.impostorIdx &&
+       state.votes[i]===state.impostorIdx){
+      sessionStats.scores[i]++;
+    }
+  });
+
+  // نقطتان للإمبوستر إذا لم يُكشف
+  if(!caught){
+    sessionStats.scores[state.impostorIdx]+=2;
+  }
+
+  // نقطة إضافية إذا خمّن الكلمة
+  if(state.guessedRight){
+    sessionStats.scores[state.impostorIdx]++;
+  }
+
+  if(state.impostorIdx>=0&&state.impostorIdx<names.length){
+    sessionStats.impostorCounts[state.impostorIdx]++;
+  }
+
+  state.roundRecorded=true;
+}
 const screens={
 names(){app.innerHTML=`<h2>أسماء المشاركين (${names.length})</h2><div id="list"></div><input type="text" id="nm" placeholder="اسم اللاعب"><button onclick="addName()">إضافة</button><button class="secondary" ${names.length<3?'disabled':''} onclick="goCat()">اختر التصنيفات ←</button>${canEdit?'<button class="secondary" onclick="goStudio()">⚙️ الاستوديو (إدارة التصنيفات)</button>':''}<p class="muted">لازم 3 لاعبين على الأقل</p>`;const list=document.getElementById('list');names.forEach((n,i)=>{const d=document.createElement('div');d.className='pname';const span=document.createElement('span');span.style.flex='1';span.textContent=n;const btn=document.createElement('button');btn.textContent='حذف';btn.onclick=()=>delName(i);d.append(span,btn);list.appendChild(d)})},
 studio(){if(!canEdit){goNames();return}const keys=Object.keys(cats);app.innerHTML=`<h2>الاستوديو — تصنيفاتك (${keys.length})</h2><div id="catlist"></div><button onclick="openCatEdit(null)">➕ تصنيف جديد</button><button onclick="exportGame()">📦 تصدير نسخة النشر</button><p class="muted">ينزّل ملف اللعبة بكل التصنيفات والكلمات والصور. النسخة المصدّرة تكون مقفلة عن التعديل.</p><button class="secondary" onclick="goNames()">رجوع</button>`;const list=document.getElementById('catlist');keys.forEach(k=>{const c=cats[k],d=document.createElement('div');d.className='catrow';if(c.img){const img=document.createElement('img');img.src=c.img;d.appendChild(img)}else{const ic=document.createElement('span');ic.className='ic';ic.textContent='🗂️';d.appendChild(ic)}const label=document.createElement('span');label.style.flex='1';label.textContent=`${k} (${c.words.length} كلمة)`;d.appendChild(label);const edit=document.createElement('button');edit.textContent='تعديل';edit.onclick=()=>openCatEdit(k);const del=document.createElement('button');del.textContent='حذف';del.style.background='var(--red)';del.onclick=()=>deleteCategory(k);d.append(edit,del);list.appendChild(d)})},
