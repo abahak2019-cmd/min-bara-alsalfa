@@ -64,16 +64,32 @@ let canEdit=true;
 function loadCategories(){
   const base=JSON.parse(JSON.stringify(BASE_CATS));
   if(!canEdit)return base;
+function loadCategories(){
+  const base=JSON.parse(JSON.stringify(BASE_CATS));
+  if(!canEdit)return base;
+
   try{
     const saved=JSON.parse(localStorage.getItem('bs_categories_cache')||'null');
+
     if(saved && typeof saved==='object' && !Array.isArray(saved)){
-      return {...base,...saved};
+      for(const key of Object.keys(saved)){
+        if(base[key]){
+          base[key]={
+            ...base[key],
+            img:saved[key].img ?? base[key].img,
+            hints:saved[key].hints?.length ? saved[key].hints : base[key].hints
+          };
+        }else{
+          base[key]=saved[key];
+        }
+      }
     }
     return base;
   }catch(e){
     return base;
   }
 }
+
 
 let cats=loadCategories(),DATA={};
 function refreshData(){DATA={...cats};DATA["عشوائي"]={words:Object.values(cats).flatMap(c=>c.words||[]),hints:Object.values(cats).flatMap(c=>c.hints||[]),img:null}}
