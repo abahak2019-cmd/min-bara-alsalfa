@@ -64,9 +64,7 @@ let canEdit=true;
 function loadCategories(){
   const base=JSON.parse(JSON.stringify(BASE_CATS));
   if(!canEdit)return base;
-function loadCategories(){
-  const base=JSON.parse(JSON.stringify(BASE_CATS));
-  if(!canEdit)return base;
+
 
   try{
     const saved=JSON.parse(localStorage.getItem('bs_categories_cache')||'null');
