@@ -1,0 +1,11 @@
+{
+  "name": "مين برا السالفة",
+  "short_name": "برا السالفة",
+  "description": "لعبة مين برا السالفة الجماعية",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#121318",
+  "theme_color": "#121318",
+  "orientation": "portrait"
+}
