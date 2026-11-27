@@ -42,6 +42,8 @@ button:disabled{opacity:.4;cursor:not-allowed}button.secondary{background:#333}b
 .stats-panel{background:#0f1016;border:1px solid #333;border-radius:12px;padding:14px;margin-top:20px}.stats-title{font-size:17px;font-weight:bold;margin-bottom:10px}.stats-total{font-size:24px;font-weight:bold;color:var(--accent);text-align:center;padding:10px}
 .stats-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #292a33}.stats-row:last-child{border-bottom:none}.stats-count{font-weight:bold}.stats-note{color:var(--muted);font-size:12px;text-align:center;margin-top:10px;line-height:1.7}
 </style>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#121318">
 </head>
 <body>
 <h1>🕵️ مين برا السالفة</h1>
@@ -359,7 +361,14 @@ render();
 <div class="copyright">
   © 2026 abahak — All Rights Reserved.
 </div>
-
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .catch(error => console.error('SW registration failed:', error));
+  });
+}
+</script>
 </body>
 </html>
 
