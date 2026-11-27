@@ -316,6 +316,7 @@ done(){
     <button class="secondary" onclick="goNames()">إنهاء الجلسة والرجوع للأسماء</button>
   `;
 }
+};
 function addName(){const input=document.getElementById('nm'),value=input.value.trim();if(!value)return;names.push(value);localStorage.setItem('bs_names',JSON.stringify(names));resetSessionTracking();state.screen='names';render()}
 function delName(i){names.splice(i,1);localStorage.setItem('bs_names',JSON.stringify(names));resetSessionTracking();render()}
 function goNames(){resetSessionTracking();state.screen='names';state.cats=[];state.roundRecorded=false;render()}
